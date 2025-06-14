@@ -1,27 +1,31 @@
-"use client"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useFormik } from "formik"
-import * as Yup from "yup"
-import { useMutation } from "@tanstack/react-query"
-import { usersService } from "@/supabase/services/userService"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useMutation } from "@tanstack/react-query";
+import { usersService } from "@/supabase/services/userService";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { currentUserAtom } from "@/jotai/store";
+import { useAtomValue } from "jotai";
+import { useEffect } from "react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const currentUser = useAtomValue(currentUserAtom);
 
   const loginMutation = useMutation({
     mutationFn: async (values: { email: string; password: string }) => {
@@ -50,6 +54,14 @@ export function LoginForm({
     },
   });
 
+  useEffect(() => {
+    if (currentUser) {
+      router.push("/");
+    }
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -71,7 +83,9 @@ export function LoginForm({
                   {...formik.getFieldProps("email")}
                 />
                 {formik.touched.email && formik.errors.email ? (
-                  <div className="text-sm text-red-500">{formik.errors.email}</div>
+                  <div className="text-sm text-red-500">
+                    {formik.errors.email}
+                  </div>
                 ) : null}
               </div>
               <div className="grid gap-3">
@@ -90,7 +104,9 @@ export function LoginForm({
                   {...formik.getFieldProps("password")}
                 />
                 {formik.touched.password && formik.errors.password ? (
-                  <div className="text-sm text-red-500">{formik.errors.password}</div>
+                  <div className="text-sm text-red-500">
+                    {formik.errors.password}
+                  </div>
                 ) : null}
               </div>
               <div className="flex flex-col gap-3">
@@ -116,5 +132,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

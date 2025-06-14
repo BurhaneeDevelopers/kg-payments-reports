@@ -28,7 +28,8 @@ import { useGetAllAgencies } from "@/api-service/agency-services";
 import { Loader2 } from "lucide-react";
 import moment from "moment";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { useCreateMultipleShifts } from "@/api-service/shift-services";
+import { useCreateMultipleRequirements } from "@/api-service/request-service";
+import { Textarea } from "../ui/textarea";
 
 const LABOURTYPE = [
   "Bouncers",
@@ -86,30 +87,31 @@ const DEPARTMENTS = [
   "Zones",
 ];
 
-export function AddShift() {
+export function AddRequest() {
   const [open, setOpen] = useState<boolean>(false);
   const { data: agencies = [] } = useGetAllAgencies();
-  const { mutate: createShift, isPending: isCreating } =
-    useCreateMultipleShifts();
+  const { mutate: createRequest, isPending: isCreating } =
+    useCreateMultipleRequirements();
 
   const formik = useFormik({
     initialValues: {
       zone: "",
       department: "",
-      shift_type: [] as { id: string; staff_attended: number }[],
-      shift_date: moment().format("dd-mm-yyyy"),
-      function: "",
+      shift_type: [] as { id: string; staff_required: number }[],
+      request_date: moment().format("dd-mm-yyyy"),
+      requirement_desc: "",
       agency_id: "",
       agency_name: "",
+      labour_type: "",
     },
     validationSchema: Yup.object({
       zone: Yup.string().required("Zone is required"),
       department: Yup.string().required("Department is required"),
-      // staff_attended: Yup.number().required("Staff count required").min(1),
+      // staff_required: Yup.number().required("Staff count required").min(1),
       shift_type: Yup.array().of(
         Yup.object().shape({
           id: Yup.string().required(),
-          staff_attended: Yup.number()
+          staff_required: Yup.number()
             .transform((value, originalValue) =>
               String(originalValue).trim() === "" ? undefined : value
             )
@@ -120,15 +122,16 @@ export function AddShift() {
       agency_id: Yup.string().required("Agency is required"), // NEW
     }),
     onSubmit: (values) => {
-      createShift(
+      createRequest(
         {
-          shifts: values.shift_type,
-          shift_date: values.shift_date,
+          requests: values.shift_type,
+          request_date: values.request_date,
           zone: values.zone,
           department: values.department,
-          function: values.function,
+          requirement_desc: values.requirement_desc,
           agency_id: values.agency_id,
           agency_name: values.agency_name,
+          labour_type: values.labour_type,
         },
         {
           onSuccess: () => {
@@ -146,14 +149,15 @@ export function AddShift() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Shift</Button>
+        <Button variant="outline">Add Request</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[500px] overflow-y-auto">
         <form onSubmit={formik.handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Shift</DialogTitle>
+            <DialogTitle>Create new labour request</DialogTitle>
             <DialogDescription>
-              Fill in the details to mark the shift attendance.
+              Fill in the details to create a new request for labour to hr
+              department
             </DialogDescription>
           </DialogHeader>
 
@@ -248,26 +252,28 @@ export function AddShift() {
             <div className="grid gap-2">
               <Label>Shift Date</Label>
               <Input
-                name="shift_date"
+                name="request_date"
                 type="date"
-                value={formik.values.shift_date}
+                value={formik.values.request_date}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="Enter date of the shift"
               />
-              {formik.touched.shift_date && formik.errors.shift_date && (
+              {formik.touched.request_date && formik.errors.request_date && (
                 <span className="text-red-500 text-sm">
-                  {formik.errors.shift_date}
+                  {formik.errors.request_date}
                 </span>
               )}
             </div>
 
             {/* Function Name */}
             <div className="grid gap-2">
-              <Label>Specefic role/function</Label>
+              <Label>Type of Labour</Label>
               <Select
-                value={formik.values.function}
-                onValueChange={(val) => formik.setFieldValue("function", val)}
+                value={formik.values.labour_type}
+                onValueChange={(val) =>
+                  formik.setFieldValue("labour_type", val)
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Function" />
@@ -280,31 +286,30 @@ export function AddShift() {
                   ))}
                 </SelectContent>
               </Select>
-              {formik.touched.function && formik.errors.function && (
+              {formik.touched.labour_type && formik.errors.labour_type && (
                 <span className="text-red-500 text-sm">
-                  {formik.errors.function}
+                  {formik.errors.labour_type}
                 </span>
               )}
             </div>
 
-            {/* Staff Count */}
-            {/* <div className="grid gap-2">
-              <Label>Number of Staff Attended</Label>
-              <Input
-                type="number"
-                name="staff_attended"
-                value={formik.values.staff_attended}
+            {/* Requirement Description */}
+            <div className="grid gap-2">
+              <Label>Requirement Description</Label>
+              <Textarea
+                name="requirement_desc"
+                value={formik.values.requirement_desc}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder="e.g. 12"
+                placeholder="e.g Labour for weight lifting or construction rods in cmz"
               />
-              {formik.touched.staff_attended &&
-                formik.errors.staff_attended && (
+              {formik.touched.requirement_desc &&
+                formik.errors.requirement_desc && (
                   <span className="text-red-500 text-sm">
-                    {formik.errors.staff_attended}
+                    {formik.errors.requirement_desc}
                   </span>
                 )}
-            </div> */}
+            </div>
 
             {/* Shift Type */}
             <div className="grid gap-2">
@@ -333,7 +338,7 @@ export function AddShift() {
                             if (checked) {
                               formik.setFieldValue("shift_type", [
                                 ...formik.values.shift_type,
-                                { id: shift.id, staff_attended: 1 },
+                                { id: shift.id, staff_required: 1 },
                               ]);
                             } else {
                               formik.setFieldValue(
@@ -348,13 +353,14 @@ export function AddShift() {
                         <span>{shift.label}</span>
                       </label>
 
-                      <div className="pl-6">
+                      <div className="pl-6 flex flex-col gap-2">
+                        {selectedShift && <Label>Request Labour Count</Label>}
                         {selectedShift && (
                           <Input
                             type="number"
                             className="flex-grow"
                             placeholder="Staff count"
-                            value={selectedShift.staff_attended}
+                            value={selectedShift.staff_required}
                             onChange={(e) => {
                               const value = e.target.value;
                               const updated = formik.values.shift_type.map(
@@ -362,7 +368,7 @@ export function AddShift() {
                                   s.id === shift.id
                                     ? {
                                         ...s,
-                                        staff_attended:
+                                        staff_required:
                                           value === "" ? "" : Number(value),
                                       }
                                     : s

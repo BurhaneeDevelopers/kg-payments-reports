@@ -1,7 +1,22 @@
 // hooks/useGetAllShifts.ts
 import { Shift } from '@/supabase/schema/shiftSchema';
-import { NewShiftPayload, shiftService } from '@/supabase/services/shiftService';
+import { shiftService } from '@/supabase/services/shiftService';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+type ShiftInput = {
+    id: string;
+    staff_attended: string | number // or appropriate type (e.g. number[], if it's user IDs)
+};
+
+type MultiShiftPayload = {
+    shifts: ShiftInput[];
+    shift_date: string;
+    zone: string;
+    department: string;
+    function: string;
+    agency_id: string;
+    agency_name: string;
+};
 
 export const useGetAllShifts = () => {
     return useQuery<Shift[], Error>({
@@ -26,16 +41,42 @@ export const useGetPendingPayment = (agencyId: string | number) => {
     });
 };
 
-export const useCreateShift = () => {
+export const useCreateMultipleShifts = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (payload: NewShiftPayload) => shiftService.createNewShift(payload),
+        mutationFn: async (payload: MultiShiftPayload) => {
+            const {
+                shifts,
+                shift_date,
+                zone,
+                department,
+                function: fn,
+                agency_id,
+                agency_name,
+            } = payload;
+
+            const responses = await Promise.all(
+                shifts.map((s) =>
+                    shiftService.createNewShift({
+                        shift_type: s.id,
+                        staff_attended: s.staff_attended,
+                        shift_date,
+                        zone,
+                        department,
+                        function: fn,
+                        agency_id,
+                        agency_name,
+                    })
+                )
+            );
+
+            return responses;
+        },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['shifts'] });
-            // refetch pending payment api
+            queryClient.invalidateQueries({ queryKey: ["shifts"] });
             queryClient.refetchQueries({
-                predicate: (query) => query.queryKey[0] === 'pendingPayment',
+                predicate: (query) => query.queryKey[0] === "pendingPayment",
             });
         },
     });

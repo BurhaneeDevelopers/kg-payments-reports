@@ -10,6 +10,7 @@ import {
   IconLayoutColumns,
 } from "@tabler/icons-react";
 import {
+  ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -47,10 +48,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { columns } from "@/lib/columns";
-import { Shift } from "@/supabase/schema/shiftSchema";
 
-export function DataTable({ data }: { data: Shift[] }) {
+type DataTableProps<T> = {
+  data: T[];
+  columns: ColumnDef<T>[];
+};
+
+export function DataTable<T>({ data, columns }: DataTableProps<T>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});

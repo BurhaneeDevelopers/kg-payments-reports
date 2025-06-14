@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { useGetAllShifts } from "@/api-service/shift-services";
 import { useGetAllAgencies } from "@/api-service/agency-services";
 import { useState } from "react";
+import { columns } from "@/lib/columns";
+import { Shift } from '../supabase/schema/shiftSchema';
 
 export default function Home() {
   const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function Home() {
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
             <SectionCards agencies={agencies} switchAgency={setSelectedAgencyId} />
             {/* <FilterTabs /> */}
-            <DataTable data={filteredShifts} />
+            <DataTable<Shift> data={filteredShifts} columns={columns} />
           </div>
         </div>
       </div>

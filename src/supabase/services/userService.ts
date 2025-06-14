@@ -1,5 +1,4 @@
-// services/users.service.ts
-import { AuthUser, Session, SupabaseClient } from "@supabase/supabase-js";
+import { AuthError, AuthUser, Session, SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "../client";
 import { User } from "../schema/userSchema";
 
@@ -7,10 +6,27 @@ class UsersService {
     private table = "users";
     private client: SupabaseClient = supabase;
 
-    async getCurrentUser(): Promise<AuthUser | null> {
+    async getCurrentUser(): Promise<User | void> {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) throw error;
-        return user;
+
+        if (user) {
+            const { data: currentUser, error: currentUserError } = await supabase.from(this.table)
+                .select("*")
+                .eq("id", user.id)
+                .single()
+
+            if (currentUserError) throw currentUserError;
+
+            if (currentUser) {
+                const userData = {
+                    ...user,
+                    ...currentUser
+                }
+
+                return userData;
+            }
+        }
     }
 
     async getSession(): Promise<Session | null> {
@@ -69,8 +85,8 @@ class UsersService {
         });
     }
 
-    async signOut(): Promise<void> {
-        const { error } = await this.client.auth.signOut();
+    async signOut(): Promise<AuthError | void> {
+        const { error } = await supabase.auth.signOut();
         if (error) throw error;
     }
 }

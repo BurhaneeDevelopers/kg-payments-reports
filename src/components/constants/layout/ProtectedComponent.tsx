@@ -5,25 +5,37 @@ import { usersService } from "@/supabase/services/userService";
 import { useRouter } from "next/navigation";
 import React, { PropsWithChildren, useEffect } from "react";
 import { toast } from "sonner";
+import { useSetAtom } from "jotai";
+import { currentUserAtom } from "@/jotai/store";
 
 const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
+  const setCurrentUser = useSetAtom(currentUserAtom);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
         const session = await usersService.getSession();
+
         if (!session) {
           router.push("/login");
-          toast.error("Session expired. Please login again.");
+          toast.error("Session Invalid. Please login again.");
           return;
         }
 
+        // ✅ Fetch and set the current user
+        const user = await usersService.getCurrentUser();
+        if (user) {
+          setCurrentUser(user);
+        }
+
+        // ✅ Handle sign-out or invalid session
         const {
           data: { subscription },
         } = usersService.onAuthStateChange((event, session) => {
           if (event === "SIGNED_OUT" || !session) {
             toast.error("Session expired. Please login again.");
+            setCurrentUser(null);
             router.push("/login");
           }
         });
@@ -39,7 +51,7 @@ const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
     };
 
     checkSession();
-  }, [router]);
+  }, [router, setCurrentUser]);
 
   return (
     <ThemeProvider
