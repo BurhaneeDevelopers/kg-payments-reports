@@ -100,7 +100,7 @@ const columns: ColumnDef<Request>[] = [
   {
     accessorKey: "action",
     header: "Pass Request",
-    cell: ({ row }) => (
+    cell: () => (
       <div className="w-fit">
         <Button size="sm" className="">Approve</Button>
       </div>
