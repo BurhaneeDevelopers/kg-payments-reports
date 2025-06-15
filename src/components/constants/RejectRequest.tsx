@@ -19,7 +19,7 @@ import { useUpdateRequestStatus } from "@/api-service/request-service";
 import { currentUserAtom } from "@/jotai/store";
 import { useAtomValue } from "jotai";
 
-export function ApproveRequest({ request_id, status }) {
+export function RejectRequest({ request_id, status }) {
   const [open, setOpen] = useState<boolean>(false);
   const { mutate: updateRequestStatus, isPending: isCreating } =
     useUpdateRequestStatus();
@@ -32,24 +32,20 @@ export function ApproveRequest({ request_id, status }) {
 
   const formik = useFormik({
     initialValues: {
-      approval_status: currentUser.role === "admin" ? "pending" : "approved",
-      status: currentUser.role === "admin" ? "sent_to_approval" : "approved",
+      approval_status: currentUser.role === "admin" ? "rejected" : "rejected",
+      status: currentUser.role === "admin" ? "rejected" : "rejected",
       request_id: request_id,
       approved_by: currentUser && currentUser.id,
     },
     onSubmit: async (values, { resetForm }) => {
       updateRequestStatus(values, {
         onSuccess: () => {
-          toast.success(
-            `Request ${
-              currentUser.role === "admin" ? "sent to agency" : "approved"
-            } Successfully`
-          );
+          toast.success(`Request rejected Successfully`);
           resetForm();
           setOpen(false);
         },
         onError: (error) => {
-          toast.error(error.message || "Error creating shift");
+          toast.error(error.message || "Error creating request");
         },
       });
     },
@@ -59,15 +55,20 @@ export function ApproveRequest({ request_id, status }) {
     <Dialog open={open} onOpenChange={setOpen}>
       {(isAdminProcessing || isAgencySentToApproval) && (
         <DialogTrigger asChild>
-          <Button variant="outline">Approve</Button>
+          <Button
+            variant="outline"
+            className="!bg-[#ff0000] hover:!bg-[#ff0000]/70"
+          >
+            Reject
+          </Button>
         </DialogTrigger>
       )}
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={formik.handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Approve this request</DialogTitle>
+            <DialogTitle>Reject this request</DialogTitle>
             <DialogDescription>
-              Confirm if you want to approve the request and send to agency
+              Confirm if you want to reject the request.
             </DialogDescription>
           </DialogHeader>
 

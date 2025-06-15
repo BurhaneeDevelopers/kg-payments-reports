@@ -16,6 +16,7 @@ type MultiShiftPayload = {
     function: string;
     agency_id: string;
     agency_name: string;
+    created_by: string;
 };
 
 export const useGetAllShifts = () => {
@@ -25,11 +26,19 @@ export const useGetAllShifts = () => {
     });
 };
 
-export const useGetShiftByAgency = (agencyId: string | number) => {
+export const useGetShiftByAgency = (agencyId: string) => {
     return useQuery<Shift[], Error>({
         queryKey: ['shifts', agencyId],
         queryFn: async () => (await shiftService.getShiftBasedOnAgency(agencyId)) ?? [],
         enabled: !!agencyId, // only run if agencyId is truthy
+    });
+};
+
+export const useGetShiftBasedOnUser = (user_id: string) => {
+    return useQuery<Shift[], Error>({
+        queryKey: ['shifts_by_user', user_id],
+        queryFn: async () => (await shiftService.getShiftBasedOnUser(user_id)) ?? [],
+        enabled: !!user_id, // only run if agencyId is truthy
     });
 };
 
@@ -54,6 +63,7 @@ export const useCreateMultipleShifts = () => {
                 function: fn,
                 agency_id,
                 agency_name,
+                created_by
             } = payload;
 
             const responses = await Promise.all(
@@ -67,6 +77,7 @@ export const useCreateMultipleShifts = () => {
                         function: fn,
                         agency_id,
                         agency_name,
+                        created_by
                     })
                 )
             );
@@ -74,7 +85,7 @@ export const useCreateMultipleShifts = () => {
             return responses;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["shifts"] });
+            queryClient.invalidateQueries({ queryKey: ["shifts_by_user"] });
             queryClient.refetchQueries({
                 predicate: (query) => query.queryKey[0] === "pendingPayment",
             });

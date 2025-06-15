@@ -3,16 +3,16 @@ import Container from "@/components/constants/layout/Container";
 import { DataTable } from "@/components/data-table";
 import { toast } from "sonner";
 import {
-  useGetAllActiveRequests,
-  useGetAllActiveRequestsByAgency,
-  useGetRequestBasedOnUser,
+  useGetAllRejectedRequests,
+  useGetRejectedRequestBasedOnAgency,
+  useGetRejectedRequestBasedOnUser,
 } from "@/api-service/request-service";
 import { columns } from "@/lib/request-columns";
 import { Request } from "@/supabase/schema/requestSchema";
-import { useAtomValue } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
+import { useAtomValue } from "jotai";
 
-export default function ActiveRequests() {
+export default function RejectedRequests() {
   const currentUser = useAtomValue(currentUserAtom);
   const isAdmin = currentUser && currentUser.role === "admin";
   const isAgency = currentUser && currentUser.role === "agency";
@@ -21,19 +21,19 @@ export default function ActiveRequests() {
     data: requests = [],
     isLoading: requestsLoading,
     error: requestError,
-  } = useGetAllActiveRequests();
+  } = useGetAllRejectedRequests();
 
   const {
     data: requests_by_agency = [],
     isLoading: requests_by_agency_loading,
     error: requests_by_agency_error,
-  } = useGetAllActiveRequestsByAgency(currentUser && currentUser.id);
+  } = useGetRejectedRequestBasedOnAgency(currentUser && currentUser.id);
 
   const {
     data: requests_by_user = [],
     isLoading: requests_by_user_loading,
     error: requests_by_user_error,
-  } = useGetRequestBasedOnUser(currentUser && currentUser.id);
+  } = useGetRejectedRequestBasedOnUser(currentUser && currentUser.id);
 
   const allRequests = isAdmin
     ? requests

@@ -10,6 +10,7 @@ export type NewShiftPayload = {
     function: string;
     agency_id: string;
     agency_name: string;
+    created_by: string;
 };
 
 class Shift_Service {
@@ -48,10 +49,19 @@ class Shift_Service {
     }
 
 
-    async getShiftBasedOnAgency(agency_id: string | number): Promise<Shift[] | null> {
+    async getShiftBasedOnAgency(agency_id: string): Promise<Shift[] | null> {
         const { data, error } = await supabase.from(this.table)
             .select('*')
             .eq('agency_id', agency_id)
+
+        if (error) throw error;
+        return data;
+    }
+
+    async getShiftBasedOnUser(user_id: string): Promise<Shift[] | null> {
+        const { data, error } = await supabase.from(this.table)
+            .select('*')
+            .eq('created_by', user_id)
 
         if (error) throw error;
         return data;
@@ -74,6 +84,7 @@ class Shift_Service {
         function: functionName,
         agency_id,
         agency_name,
+        created_by,
     }: NewShiftPayload): Promise<Shift[] | null> {
 
         const shiftToInsert = {
@@ -85,6 +96,7 @@ class Shift_Service {
             function: functionName,
             agency_id,
             agency_name,
+            created_by
         }
 
         const { data, error } = await supabase.from(this.table)

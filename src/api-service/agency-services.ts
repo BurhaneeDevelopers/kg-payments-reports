@@ -9,13 +9,20 @@ export const useGetAllAgencies = () => {
     });
 };
 
+export const useGetAgenciesBasedOnUser = (user_id: string) => {
+    return useQuery<Agency[], Error>({
+        queryKey: ['agencies_by_user'],
+        queryFn: async () => (await agencyService.getAgenciesBasedOnUser(user_id)) ?? [],
+    });
+};
+
 export const useCreateAgency = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (payload: NewAgencyPayload) => agencyService.createNewAgency(payload),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['agencies'] });
+            queryClient.invalidateQueries({ queryKey: ['agencies_by_user'] });
         },
     });
 };

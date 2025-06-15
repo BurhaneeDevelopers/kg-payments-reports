@@ -44,48 +44,51 @@ import {
 import Link from "next/link";
 import { currentUserAtom } from "@/jotai/store";
 import { useAtomValue } from "jotai";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const currentUser = useAtomValue(currentUserAtom);
+  const pathname = usePathname();
 
   const data = {
     user: {
-      name:
-        currentUser && currentUser.name ? currentUser.name : "Mohammed Jhansi",
-      email:
-        currentUser && currentUser.email
-          ? currentUser.email
-          : "hrchennaiashara@gmail.com",
+      name: currentUser?.name ?? "Mohammed Jhansi",
+      email: currentUser?.email ?? "hrchennaiashara@gmail.com",
       avatar: "/avatars/shadcn.jpg",
     },
     navMain: [
       {
         title: "Dashboard",
-        url:
-          currentUser && currentUser.role === "admin"
-            ? "/"
-            : "/you-cannot-access-this",
+        url: "/",
         icon: IconDashboard,
+        isActive: pathname === "/",
       },
     ],
     navClouds: [
       {
         title: "Requests",
         icon: List,
-        isActive: true,
         url: "#",
         items: [
           {
             title: "Active Requests",
             url: "/active-requests",
+            isActive: pathname === "/active-requests",
+          },
+          {
+            title: "Approved Requests",
+            url: "/approved-requests",
+            isActive: pathname === "/approved-requests",
           },
           {
             title: "Rejected Requests",
-            url: "#",
+            url: "/rejected-requests",
+            isActive: pathname === "/rejected-requests",
           },
           {
             title: "Requests Unsatisfied",
-            url: "#",
+            url: "/requests-unsatisfied",
+            isActive: pathname === "/requests-unsatisfied",
           },
         ],
       },
@@ -110,7 +113,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} isActive={true} />
+        {currentUser && currentUser.role !== "agency" && (
+          <NavMain
+            items={data.navMain}
+            isActive={pathname === data.navMain[0].url}
+          />
+        )}
         {data.navClouds.map((item) => (
           <Collapsible
             key={item.title}
@@ -130,10 +138,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarGroupLabel>
               <CollapsibleContent>
                 <SidebarGroupContent>
-                  <SidebarMenu>
+                  <SidebarMenu className="px-3">
                     {item.items.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
+                      <SidebarMenuItem
+                        key={item.title}
+                        className={
+                          item.isActive
+                            ? "bg-zinc-900 text-white dark:bg-white rounded-lg dark:text-zinc-900 hover:!bg-zinc-900/70"
+                            : ""
+                        }
+                      >
+                        <SidebarMenuButton
+                          asChild
+                          className="hover:!bg-zinc-900/70 hover:text-white rounded-lg px-3"
+                        >
                           {/* isActive={item.isActive} */}
                           <Link href={item.url}>{item.title}</Link>
                         </SidebarMenuButton>

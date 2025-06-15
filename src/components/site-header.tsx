@@ -31,9 +31,10 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-4">
           <ModeToggle />
-          <AddAgency />
-          <AddShift />
-          <AddRequest />
+
+          {currentUser && currentUser.role !== "agency" && <AddAgency />}
+          {currentUser && currentUser.role !== "agency" && <AddShift />}
+          {currentUser && currentUser.role === "department" && <AddRequest />}
         </div>
       </div>
     </header>

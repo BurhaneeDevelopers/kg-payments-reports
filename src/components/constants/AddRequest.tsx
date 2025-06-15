@@ -30,6 +30,8 @@ import moment from "moment";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { useCreateMultipleRequirements } from "@/api-service/request-service";
 import { Textarea } from "../ui/textarea";
+import { currentUserAtom } from "@/jotai/store";
+import { useAtomValue } from "jotai";
 
 const LABOURTYPE = [
   "Bouncers",
@@ -42,6 +44,7 @@ const LABOURTYPE = [
   "House Cleaning",
   "Security Guard",
   "Event Manager",
+  "Traffic Marshal",
 ];
 
 const ZONES = [
@@ -57,52 +60,59 @@ const ZONES = [
   "Vajihi Zone (Vajihi Masjid)",
 ];
 
-const DEPARTMENTS = [
-  "Accommodation",
-  "AVR / Photography",
-  "Central Office",
-  "Communications",
-  "Construction",
-  "Finance",
-  "Fire Safety & Security",
-  "Flow Management",
-  "Follow Up",
-  "Food Safety and Hygiene",
-  "HR",
-  "IT / Technology Services And Support",
-  "ITS",
-  "Karamat",
-  "Mawaid",
-  "Mumineen Mehmaan Reception",
-  "Nazafat",
-  "Ohbat & Waaz Tallaqi",
-  "PMO",
-  "Procurement",
-  "Public Relations",
-  "Qasre Aali Management",
-  "Security",
-  "Sehat, Medical",
-  "Tazyeen",
-  "Transport",
-  "Zones",
-];
+// const DEPARTMENTS = [
+//   "Accommodation",
+//   "AVR / Photography",
+//   "Central Office",
+//   "Communications",
+//   "Construction",
+//   "Finance",
+//   "Fire Safety & Security",
+//   "Flow Management",
+//   "Follow Up",
+//   "Food Safety and Hygiene",
+//   "HR",
+//   "IT / Technology Services And Support",
+//   "ITS",
+//   "Karamat",
+//   "Mawaid",
+//   "Mumineen Mehmaan Reception",
+//   "Nazafat",
+//   "Ohbat & Waaz Tallaqi",
+//   "PMO",
+//   "Procurement",
+//   "Public Relations",
+//   "Qasre Aali Management",
+//   "Security",
+//   "Sehat, Medical",
+//   "Tazyeen",
+//   "Transport",
+//   "Zones",
+// ];
 
 export function AddRequest() {
   const [open, setOpen] = useState<boolean>(false);
   const { data: agencies = [] } = useGetAllAgencies();
   const { mutate: createRequest, isPending: isCreating } =
     useCreateMultipleRequirements();
+  const currentUser = useAtomValue(currentUserAtom);
 
   const formik = useFormik({
     initialValues: {
       zone: "",
-      department: "",
+      department:
+        (currentUser &&
+          currentUser.role === "department" &&
+          currentUser.department_code) ||
+        "NA",
       shift_type: [] as { id: string; staff_required: number }[],
       request_date: moment().format("dd-mm-yyyy"),
       requirement_desc: "",
       agency_id: "",
       agency_name: "",
       labour_type: "",
+      created_by:
+        currentUser && currentUser.role === "agency" ? "" : currentUser.id,
     },
     validationSchema: Yup.object({
       zone: Yup.string().required("Zone is required"),
@@ -132,6 +142,7 @@ export function AddRequest() {
           agency_id: values.agency_id,
           agency_name: values.agency_name,
           labour_type: values.labour_type,
+          created_by: values.created_by,
         },
         {
           onSuccess: () => {
@@ -188,7 +199,7 @@ export function AddRequest() {
             </div>
 
             {/* Department */}
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label>Department</Label>
               <Select
                 value={formik.values.department}
@@ -210,7 +221,7 @@ export function AddRequest() {
                   {formik.errors.department}
                 </span>
               )}
-            </div>
+            </div> */}
 
             <div className="grid gap-2">
               <Label>Agency</Label>

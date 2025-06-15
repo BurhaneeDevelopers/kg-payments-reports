@@ -114,11 +114,7 @@ export function LoginForm({
                 ) : null}
               </div>
               <div className="flex flex-col gap-3">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={loginMutation.isPending}
-                >
+                <Button className="w-full" disabled={loginMutation.isPending}>
                   {loginMutation.isPending ? "Logging in..." : "Login"}
                 </Button>
                 {/* <Button variant="outline" className="w-full">

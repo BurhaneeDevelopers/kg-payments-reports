@@ -5,6 +5,8 @@ import { Agency } from "../schema/agencySchema";
 export type NewAgencyPayload = {
     agency_name: string;
     cost_per_shift: string;
+    created_by: string;
+    created_by_role: string;
 };
 
 class Agency_Service {
@@ -18,14 +20,27 @@ class Agency_Service {
         return data;
     }
 
+    async getAgenciesBasedOnUser(user_id: string): Promise<Agency[] | null> {
+        const { data, error } = await supabase.from(this.table)
+            .select('*')
+            .eq("created_by", user_id)
+
+        if (error) throw error;
+        return data;
+    }
+
     async createNewAgency({
         agency_name,
         cost_per_shift,
+        created_by,
+        created_by_role
     }: NewAgencyPayload): Promise<Agency[] | null> {
 
         const agencyToInsert = {
             agency_name,
             cost_per_shift,
+            created_by,
+            created_by_role
         }
 
         const { data, error } = await supabase.from(this.table)

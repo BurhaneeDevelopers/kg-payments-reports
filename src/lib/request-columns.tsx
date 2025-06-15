@@ -1,7 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Request } from "@/supabase/schema/requestSchema";
-import { CreateRequest } from "@/components/constants/ApproveRequest";
+import { ApproveRequest } from "@/components/constants/ApproveRequest";
+import { RejectRequest } from "@/components/constants/RejectRequest";
 
 const columns: ColumnDef<Request>[] = [
   {
@@ -100,9 +101,16 @@ const columns: ColumnDef<Request>[] = [
   {
     accessorKey: "action",
     header: "Pass Request",
-    cell: () => (
-      <div className="w-fit">
-        <CreateRequest />
+    cell: ({ row }) => (
+      <div className="w-fit flex gap-4">
+        <ApproveRequest
+          request_id={row.original.id}
+          status={row.original.status}
+        />
+        <RejectRequest
+          request_id={row.original.id}
+          status={row.original.status}
+        />
       </div>
     ),
   },

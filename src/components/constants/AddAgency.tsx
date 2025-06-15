@@ -19,15 +19,20 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useCreateAgency } from "@/api-service/agency-services";
 import { Loader2 } from "lucide-react";
+import { currentUserAtom } from "@/jotai/store";
+import { useAtomValue } from "jotai";
 
 export function AddAgency() {
   const [open, setOpen] = useState<boolean>(false);
+  const currentUser = useAtomValue(currentUserAtom);
   const { mutate: createAgency, isPending: isCreating } = useCreateAgency();
 
   const formik = useFormik({
     initialValues: {
       agency_name: "",
       cost_per_shift: "",
+      created_by: currentUser && currentUser?.id,
+      created_by_role: currentUser && currentUser?.role,
     },
     validationSchema: Yup.object({
       agency_name: Yup.string().required("Agency name is required"),

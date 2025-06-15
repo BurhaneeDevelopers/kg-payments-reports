@@ -29,6 +29,9 @@ import { Loader2 } from "lucide-react";
 import moment from "moment";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { useCreateMultipleShifts } from "@/api-service/shift-services";
+import { useAtomValue } from "jotai";
+import { currentUserAtom } from "@/jotai/store";
+import { useRouter } from "next/navigation";
 
 const LABOURTYPE = [
   "Bouncers",
@@ -41,6 +44,7 @@ const LABOURTYPE = [
   "House Cleaning",
   "Security Guard",
   "Event Manager",
+  "Traffic Marshal",
 ];
 
 const ZONES = [
@@ -91,6 +95,8 @@ export function AddShift() {
   const { data: agencies = [] } = useGetAllAgencies();
   const { mutate: createShift, isPending: isCreating } =
     useCreateMultipleShifts();
+  const currentUser = useAtomValue(currentUserAtom);
+  const router= useRouter()
 
   const formik = useFormik({
     initialValues: {
@@ -101,6 +107,7 @@ export function AddShift() {
       function: "",
       agency_id: "",
       agency_name: "",
+      created_by: currentUser && currentUser.id,
     },
     validationSchema: Yup.object({
       zone: Yup.string().required("Zone is required"),
@@ -129,11 +136,13 @@ export function AddShift() {
           function: values.function,
           agency_id: values.agency_id,
           agency_name: values.agency_name,
+          created_by: values.created_by,
         },
         {
           onSuccess: () => {
             toast.success("Shifts Created Successfully");
             setOpen(false);
+            router.push("/active-requests")
           },
           onError: (error) => {
             toast.error(getErrorMessage(error) || "Error creating shifts");
@@ -235,6 +244,9 @@ export function AddShift() {
                   ) : (
                     <p className="text-sm p-2">No Agency Available</p>
                   )}
+                  <SelectItem value="un_organized">
+                    Un Organized | others
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {formik.touched.agency_id && formik.errors.agency_id && (

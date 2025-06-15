@@ -3,20 +3,23 @@
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { usersService } from "@/supabase/services/userService";
-import { useRouter } from "next/navigation";
-import { PropsWithChildren, useEffect } from "react";
-import { useSetAtom } from "jotai";
+import { usePathname, useRouter } from "next/navigation";
+import { PropsWithChildren, useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
 import { toast } from "sonner";
 
 const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
-  const setCurrentUser = useSetAtom(currentUserAtom);
+  // const pathname = usePathname();
+  const [, setCurrentUser] = useAtom(currentUserAtom);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let unsubscribe: () => void;
-
+    
     const init = async () => {
+      setLoading(true);
       try {
         const [session, user] = await Promise.all([
           usersService.getSession(),
@@ -29,6 +32,14 @@ const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
         }
 
         if (user) setCurrentUser(user);
+
+        // if (user && pathname === "/") {
+        //   if (user.role === "agency") {
+        //     router.replace("/active-requests");
+        //   } else if (user.role === "admin") {
+        //     router.replace("/admin-dashboard");
+        //   }
+        // }
 
         const {
           data: { subscription },
@@ -45,6 +56,8 @@ const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
         console.error("Auth check failed:", err);
         toast.error("Authentication error. Please login again.");
         router.push("/login");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,8 +65,11 @@ const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
 
     return () => {
       if (unsubscribe) unsubscribe();
+      setLoading(false);
     };
   }, [router, setCurrentUser]);
+
+  if (loading) return "loading...";
 
   return (
     <ThemeProvider
