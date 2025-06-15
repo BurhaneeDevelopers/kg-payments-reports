@@ -6,7 +6,7 @@ class UsersService {
     private table = "users";
     private client: SupabaseClient = supabase;
 
-    async getCurrentUser(): Promise<User | void> {
+    async getCurrentUser(): Promise<User> {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) throw error;
 
