@@ -19,6 +19,9 @@ import {
 } from "@/components/ui/sidebar";
 import { usersService } from "@/supabase/services/userService";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { currentUserAtom } from "@/jotai/store";
+import { useSetAtom } from "jotai";
 
 export function NavUser({
   user,
@@ -31,6 +34,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const setCurrentUser = useSetAtom(currentUserAtom);
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -84,7 +88,9 @@ export function NavUser({
             <DropdownMenuItem
               onClick={async () => {
                 await usersService.signOut();
+                toast.success("Logged out sucessfuly");
                 router.push("/login");
+                setCurrentUser(null);
               }}
             >
               <IconLogout />

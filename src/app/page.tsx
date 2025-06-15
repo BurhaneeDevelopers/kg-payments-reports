@@ -12,10 +12,13 @@ import { useGetAllShifts } from "@/api-service/shift-services";
 import { useGetAllAgencies } from "@/api-service/agency-services";
 import { useState } from "react";
 import { columns } from "@/lib/columns";
-import { Shift } from '../supabase/schema/shiftSchema';
+import { Shift } from "../supabase/schema/shiftSchema";
+import { useAtomValue } from "jotai";
+import { currentUserAtom } from "@/jotai/store";
 
 export default function Home() {
   const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(null);
+  const currentUser = useAtomValue(currentUserAtom);
 
   const {
     data: shifts = [],
@@ -42,7 +45,12 @@ export default function Home() {
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-            <SectionCards agencies={agencies} switchAgency={setSelectedAgencyId} />
+            {currentUser && currentUser.role === "admin" && (
+              <SectionCards
+                agencies={agencies}
+                switchAgency={setSelectedAgencyId}
+              />
+            )}
             {/* <FilterTabs /> */}
             <DataTable<Shift> data={filteredShifts} columns={columns} />
           </div>

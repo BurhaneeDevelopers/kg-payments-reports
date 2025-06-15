@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Request } from "@/supabase/schema/requestSchema";
-import { Button } from "@/components/ui/button";
+import { CreateRequest } from "@/components/constants/ApproveRequest";
 
 const columns: ColumnDef<Request>[] = [
   {
@@ -69,7 +69,7 @@ const columns: ColumnDef<Request>[] = [
     header: "Approval Status",
     cell: ({ row }) => (
       <div className="w-fit">
-        <Badge className="px-1.5 text-red-500 font-semibold capitalize">
+        <Badge className="px-1.5  font-semibold capitalize">
           {row.original.approval_status}
         </Badge>
       </div>
@@ -80,7 +80,7 @@ const columns: ColumnDef<Request>[] = [
     header: "Request Status",
     cell: ({ row }) => (
       <div className="w-fit">
-        <Badge className="px-1.5 text-red-500 font-semibold capitalize">
+        <Badge className="px-1.5  font-semibold capitalize">
           {row.original.status}
         </Badge>
       </div>
@@ -102,7 +102,7 @@ const columns: ColumnDef<Request>[] = [
     header: "Pass Request",
     cell: () => (
       <div className="w-fit">
-        <Button size="sm" className="">Approve</Button>
+        <CreateRequest />
       </div>
     ),
   },

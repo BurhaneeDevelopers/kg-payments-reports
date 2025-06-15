@@ -1,35 +1,35 @@
 "use client";
+
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { usersService } from "@/supabase/services/userService";
 import { useRouter } from "next/navigation";
-import React, { PropsWithChildren, useEffect } from "react";
-import { toast } from "sonner";
+import { PropsWithChildren, useEffect } from "react";
 import { useSetAtom } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
+import { toast } from "sonner";
 
 const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
   const setCurrentUser = useSetAtom(currentUserAtom);
 
   useEffect(() => {
-    const checkSession = async () => {
+    let unsubscribe: () => void;
+
+    const init = async () => {
       try {
-        const session = await usersService.getSession();
+        const [session, user] = await Promise.all([
+          usersService.getSession(),
+          usersService.getCurrentUser(),
+        ]);
 
         if (!session) {
           router.push("/login");
-          toast.error("Session Invalid. Please login again.");
           return;
         }
 
-        // ✅ Fetch and set the current user
-        const user = await usersService.getCurrentUser();
-        if (user) {
-          setCurrentUser(user);
-        }
+        if (user) setCurrentUser(user);
 
-        // ✅ Handle sign-out or invalid session
         const {
           data: { subscription },
         } = usersService.onAuthStateChange((event, session) => {
@@ -40,17 +40,19 @@ const ProtectedComponent: React.FC<PropsWithChildren> = ({ children }) => {
           }
         });
 
-        return () => {
-          subscription.unsubscribe();
-        };
-      } catch (error) {
-        console.error("Session check failed:", error);
+        unsubscribe = () => subscription.unsubscribe();
+      } catch (err) {
+        console.error("Auth check failed:", err);
         toast.error("Authentication error. Please login again.");
         router.push("/login");
       }
     };
 
-    checkSession();
+    init();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [router, setCurrentUser]);
 
   return (

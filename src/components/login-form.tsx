@@ -17,23 +17,27 @@ import { usersService } from "@/supabase/services/userService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { currentUserAtom } from "@/jotai/store";
-import { useAtomValue } from "jotai";
 import { useEffect } from "react";
+import { useAtom } from "jotai";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const currentUser = useAtomValue(currentUserAtom);
+  const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
   const loginMutation = useMutation({
     mutationFn: async (values: { email: string; password: string }) => {
       return await usersService.loginUser(values.email, values.password);
     },
-    onSuccess: () => {
-      toast.success("Login successful");
+    onSuccess: async () => {
       router.push("/");
+      toast.success("Login successful");
+      const user = await usersService.getCurrentUser();
+      if (user) {
+        setCurrentUser(user);
+      }
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Login failed");
@@ -58,7 +62,7 @@ export function LoginForm({
     if (currentUser) {
       router.push("/");
     }
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
@@ -117,17 +121,17 @@ export function LoginForm({
                 >
                   {loginMutation.isPending ? "Logging in..." : "Login"}
                 </Button>
-                <Button variant="outline" className="w-full">
+                {/* <Button variant="outline" className="w-full">
                   Login with Google
-                </Button>
+                </Button> */}
               </div>
             </div>
-            <div className="mt-4 text-center text-sm">
+            {/* <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
               <a href="#" className="underline underline-offset-4">
                 Sign up
               </a>
-            </div>
+            </div> */}
           </form>
         </CardContent>
       </Card>

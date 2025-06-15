@@ -408,7 +408,7 @@ export function AddRequest() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Save Shift</Button>
+            <Button type="submit">Save Request</Button>
           </DialogFooter>
         </form>
       </DialogContent>

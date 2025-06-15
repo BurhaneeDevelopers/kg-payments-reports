@@ -20,27 +20,21 @@ export function SiteHeader() {
         <h1 className="text-base font-medium capitalize">
           {currentUser &&
             currentUser.role &&
-            `Logged In as - ${currentUser.role} (${
+            `Logged In as - ${currentUser.role} ${
               currentUser.role === "department"
                 ? currentUser.department_code
                 : currentUser.role === "agency"
                 ? currentUser.agency_code
-                : null
-            })`}
+                : ""
+            }`}
         </h1>
 
-        {currentUser && currentUser.role === "admin" ? (
-          <div className="ml-auto flex items-center gap-4">
-            <ModeToggle />
-            <AddAgency />
-            <AddShift />
-          </div>
-        ) : (
-          <div className="ml-auto flex items-center gap-4">
-            <ModeToggle />
-            <AddRequest />
-          </div>
-        )}
+        <div className="ml-auto flex items-center gap-4">
+          <ModeToggle />
+          <AddAgency />
+          <AddShift />
+          <AddRequest />
+        </div>
       </div>
     </header>
   );
