@@ -110,9 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {currentUser && currentUser.role === "admin" && (
-          <NavMain items={data.navMain} isActive={true} />
-        )}
+        <NavMain items={data.navMain} isActive={true} />
         {data.navClouds.map((item) => (
           <Collapsible
             key={item.title}
