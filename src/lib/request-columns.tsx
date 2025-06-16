@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Request } from "@/supabase/schema/requestSchema";
 import { ApproveRequest } from "@/components/constants/ApproveRequest";
 import { RejectRequest } from "@/components/constants/RejectRequest";
+import { DeRejectRequest } from "@/components/constants/DeRejectRequest";
 
 const columns: ColumnDef<Request>[] = [
   {
@@ -108,6 +109,10 @@ const columns: ColumnDef<Request>[] = [
           status={row.original.status}
         />
         <RejectRequest
+          request_id={row.original.id}
+          status={row.original.status}
+        />
+        <DeRejectRequest
           request_id={row.original.id}
           status={row.original.status}
         />
