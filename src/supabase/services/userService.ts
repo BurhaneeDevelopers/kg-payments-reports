@@ -4,6 +4,7 @@ import { User } from "../schema/userSchema";
 
 class UsersService {
     private table = "users";
+    private agency_table = "agencies";
     private client: SupabaseClient = supabase;
 
     async getCurrentUser(): Promise<User> {
@@ -37,7 +38,7 @@ class UsersService {
 
     // ✅ Create a new user
     async createUser(userData: User): Promise<AuthUser | null> {
-        const { email, password, name, department_code, agency_code } = userData;
+        const { email, password, name, department_code, agency_code, role, username } = userData;
 
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email,
@@ -51,7 +52,7 @@ class UsersService {
 
         if (user) {
             const { error: insertError } = await supabase
-                .from(this.table)
+                .from(this.agency_table)
                 .insert({
                     id: user.id,
                     name,

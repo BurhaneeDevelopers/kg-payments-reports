@@ -13,6 +13,19 @@ export type NewShiftPayload = {
     created_by: string;
 };
 
+export type UpdateShiftPayload = {
+    shift_type: string;
+    shift_date: string;
+    staff_attended: string | number;
+    zone: string | number;
+    department: string | number;
+    function: string;
+    agency_id: string;
+    agency_name: string;
+    updated_by: string;
+    shift_id: string
+};
+
 class Shift_Service {
     private table = "shifts";
     private agencyTable = "agencies";
@@ -58,6 +71,16 @@ class Shift_Service {
         return data;
     }
 
+    async getSingleShiftBasedOnId(shift_id: string): Promise<Shift | null> {
+        const { data, error } = await supabase.from(this.table)
+            .select('*')
+            .eq('id', shift_id)
+            .single()
+
+        if (error) throw error;
+        return data;
+    }
+
     async getShiftBasedOnUser(user_id: string): Promise<Shift[] | null> {
         const { data, error } = await supabase.from(this.table)
             .select('*')
@@ -96,11 +119,46 @@ class Shift_Service {
             function: functionName,
             agency_id,
             agency_name,
-            created_by
+            created_by,
         }
 
         const { data, error } = await supabase.from(this.table)
             .insert(shiftToInsert)
+            .select('*')
+
+        if (error) throw error;
+        return data;
+    }
+
+    async updateShift({
+        shift_type,
+        shift_date,
+        staff_attended,
+        zone,
+        department,
+        function: functionName,
+        agency_id,
+        agency_name,
+        updated_by,
+        shift_id
+    }: UpdateShiftPayload): Promise<Shift[] | null> {
+
+        const shiftToUpdate = {
+            shift_type,
+            shift_date,
+            staff_attended,
+            zone,
+            department,
+            function: functionName,
+            agency_id,
+            agency_name,
+            updated_by,
+            shift_id
+        }
+
+        const { data, error } = await supabase.from(this.table)
+            .update(shiftToUpdate)
+            .eq("id", shift_id)
             .select('*')
 
         if (error) throw error;

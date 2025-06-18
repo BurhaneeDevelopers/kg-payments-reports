@@ -11,6 +11,7 @@ import { columns } from "@/lib/request-columns";
 import { Request } from "@/supabase/schema/requestSchema";
 import { useAtomValue } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
+import { AddRequest } from "@/components/constants/AddRequest";
 
 export default function ActiveRequests() {
   const currentUser = useAtomValue(currentUserAtom);
@@ -62,6 +63,11 @@ export default function ActiveRequests() {
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+            <div className="w-fit self-end px-4">
+              {currentUser && currentUser.role === "department" && (
+                <AddRequest />
+              )}
+            </div>
             <DataTable<Request> data={allRequests} columns={columns} />
           </div>
         </div>

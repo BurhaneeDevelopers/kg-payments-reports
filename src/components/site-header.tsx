@@ -33,8 +33,6 @@ export function SiteHeader() {
           <ModeToggle />
 
           {currentUser && currentUser.role !== "agency" && <AddAgency />}
-          {currentUser && currentUser.role !== "agency" && <AddShift />}
-          {currentUser && currentUser.role === "department" && <AddRequest />}
         </div>
       </div>
     </header>

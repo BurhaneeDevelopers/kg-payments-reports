@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 // import { IconGripVertical } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { Shift } from "@/supabase/schema/shiftSchema";
+import { EditShift } from "@/components/constants/EditShift";
 
 // Create a separate component for the drag handle
 // function DragHandle({ id }: { id: string }) {
@@ -107,6 +108,15 @@ const columns: ColumnDef<Shift>[] = [
         <Badge variant="outline" className="text-muted-foreground px-1.5">
           {row.original.function}
         </Badge>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "action",
+    header: "Actions",
+    cell: ({ row }) => (
+      <div className="w-fit">
+        <EditShift shift_id={row.original.id} />
       </div>
     ),
   },

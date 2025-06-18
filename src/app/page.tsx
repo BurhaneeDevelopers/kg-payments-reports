@@ -18,6 +18,7 @@ import { useAtomValue } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
 import { SectionCards } from "@/components/section-cards";
 import { useRouter } from "next/navigation";
+import { AddShift } from "@/components/constants/AddShift";
 
 export default function Home() {
   const currentUser = useAtomValue(currentUserAtom);
@@ -85,6 +86,9 @@ export default function Home() {
               agencies={agencies}
               switchAgency={setSelectedAgencyId}
             />
+            <div className="w-fit self-end px-4">
+              {currentUser && currentUser.role !== "agency" && <AddShift />}
+            </div>
             <DataTable<Shift> data={filteredShifts} columns={columns} />
           </div>
         </div>

@@ -17,13 +17,16 @@ import { usersService } from "@/supabase/services/userService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { currentUserAtom } from "@/jotai/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
+import { Eye, EyeOff } from "lucide-react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const router = useRouter();
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
 
@@ -102,11 +105,27 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  {...formik.getFieldProps("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    {...formik.getFieldProps("password")}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 {formik.touched.password && formik.errors.password ? (
                   <div className="text-sm text-red-500">
                     {formik.errors.password}

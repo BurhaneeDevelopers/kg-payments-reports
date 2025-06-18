@@ -24,14 +24,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner"; // Optional, for notifications
-import { useGetAllAgencies } from "@/api-service/agency-services";
-import { Loader2 } from "lucide-react";
+import { Edit, Loader2 } from "lucide-react";
 import moment from "moment";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { useCreateMultipleShifts } from "@/api-service/shift-services";
+import {
+  useGetSingleShiftBasedOnId,
+  useUpdateMultipleShifts,
+} from "@/api-service/shift-services";
 import { useAtomValue } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
 import { useRouter } from "next/navigation";
+import { useGetAllAgencies } from "@/api-service/agency-services";
 
 const LABOURTYPE = [
   "Bouncers",
@@ -90,24 +93,32 @@ const DEPARTMENTS = [
   "Zones",
 ];
 
-export function AddShift() {
+export function EditShift({ shift_id }) {
   const [open, setOpen] = useState<boolean>(false);
   const { data: agencies = [] } = useGetAllAgencies();
-  const { mutate: createShift, isPending: isCreating } =
-    useCreateMultipleShifts();
+  const { mutate: editShift, isPending: isCreating } =
+    useUpdateMultipleShifts();
   const currentUser = useAtomValue(currentUserAtom);
-  const router= useRouter()
+  const router = useRouter();
+
+  const {
+    data: shiftDetails,
+    // isLoading: allShiftsLoading,
+    error: shiftError,
+  } = useGetSingleShiftBasedOnId(shift_id);
+
+  if (shiftError) toast.error("Error fetching shifts");
 
   const formik = useFormik({
     initialValues: {
-      zone: "",
-      department: "",
+      zone: shiftDetails?.zone,
+      department: shiftDetails?.department,
       shift_type: [] as { id: string; staff_attended: number }[],
       shift_date: moment().format("dd-mm-yyyy"),
-      function: "",
-      agency_id: "",
-      agency_name: "",
-      created_by: currentUser && currentUser.id,
+      function: shiftDetails?.function,
+      agency_id: shiftDetails?.agency_id,
+      agency_name: shiftDetails?.agency_name,
+      updated_by: currentUser && currentUser.id,
     },
     validationSchema: Yup.object({
       zone: Yup.string().required("Zone is required"),
@@ -127,7 +138,7 @@ export function AddShift() {
       agency_id: Yup.string().required("Agency is required"), // NEW
     }),
     onSubmit: (values) => {
-      createShift(
+      editShift(
         {
           shifts: values.shift_type,
           shift_date: values.shift_date,
@@ -136,13 +147,14 @@ export function AddShift() {
           function: values.function,
           agency_id: values.agency_id,
           agency_name: values.agency_name,
-          created_by: values.created_by,
+          updated_by: values.updated_by,
+          shift_id,
         },
         {
           onSuccess: () => {
             toast.success("Shifts Created Successfully");
             setOpen(false);
-            router.push("/active-requests")
+            router.push("/active-requests");
           },
           onError: (error) => {
             toast.error(getErrorMessage(error) || "Error creating shifts");
@@ -154,9 +166,13 @@ export function AddShift() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Add New Shift</Button>
-      </DialogTrigger>
+      {currentUser.role !== "agency" && (
+        <DialogTrigger asChild>
+          <Button variant="outline" className="">
+            <Edit className="" />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[500px] max-h-[500px] overflow-y-auto">
         <form onSubmit={formik.handleSubmit}>
           <DialogHeader>
