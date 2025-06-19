@@ -142,7 +142,6 @@ class Shift_Service {
         updated_by,
         shift_id
     }: UpdateShiftPayload): Promise<Shift[] | null> {
-
         const shiftToUpdate = {
             shift_type,
             shift_date,
@@ -153,7 +152,6 @@ class Shift_Service {
             agency_id,
             agency_name,
             updated_by,
-            shift_id
         }
 
         const { data, error } = await supabase.from(this.table)

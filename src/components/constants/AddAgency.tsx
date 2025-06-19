@@ -21,18 +21,42 @@ import { useCreateAgency } from "@/api-service/agency-services";
 import { Loader2 } from "lucide-react";
 import { currentUserAtom } from "@/jotai/store";
 import { useAtomValue } from "jotai";
+import { useCreateNewUser } from "@/api-service/user-service";
+
+const generatePlayfulPassword = () => {
+  const words = [
+    "cat",
+    "dog",
+    "sun",
+    "fun",
+    "sky",
+    "bug",
+    "bee",
+    "fox",
+    "pop",
+    "zap",
+  ];
+  const number = Math.floor(10 + Math.random() * 90); // generates 2-digit number
+
+  const word1 = words[Math.floor(Math.random() * words.length)];
+  const word2 = words[Math.floor(Math.random() * words.length)];
+
+  return `${word1}${number}${word2}`;
+};
+
+const password = generatePlayfulPassword();
 
 export function AddAgency() {
   const [open, setOpen] = useState<boolean>(false);
   const currentUser = useAtomValue(currentUserAtom);
-  const { mutate: createAgency, isPending: isCreating } = useCreateAgency();
+  const { mutate: createAgency, isPending: isCreatingAgency } =
+    useCreateAgency();
+  const { mutate: createUser, isPending: isCreatingUser } = useCreateNewUser();
 
   const formik = useFormik({
     initialValues: {
       agency_name: "",
       cost_per_shift: "",
-      created_by: currentUser && currentUser?.id,
-      created_by_role: currentUser && currentUser?.role,
     },
     validationSchema: Yup.object({
       agency_name: Yup.string().required("Agency name is required"),
@@ -42,14 +66,47 @@ export function AddAgency() {
         .required("Rate is required"),
     }),
     onSubmit: async (values, { resetForm }) => {
-      createAgency(values, {
-        onSuccess: () => {
-          toast.success("Shift Created Successfully");
-          resetForm();
-          setOpen(false);
+      const userPayload = {
+        name: values.agency_name,
+        email: `${values.agency_name.replace(
+          /\s+/g,
+          "-"
+        )}@gmail.com`.toLowerCase(),
+        password: password,
+        role: "agency",
+        username: values.agency_name.replace(/\s+/g, "-"),
+        department_code: null,
+        agency_code: values.agency_name.replace(/\s+/g, "-"),
+      };
+
+      createUser(userPayload, {
+        onSuccess: (user) => {
+          // Assuming 'user' contains the created user object and has an 'id'
+          const agencyPayload = {
+            agency_name: values.agency_name,
+            cost_per_shift: values.cost_per_shift,
+            created_by: currentUser && currentUser?.id,
+            created_by_role: currentUser && currentUser?.role,
+            user_id: user?.id,
+          };
+
+          if (user) {
+            createAgency(agencyPayload, {
+              onSuccess: () => {
+                toast.success("Agency Created Successfully");
+                resetForm();
+                setOpen(false);
+              },
+              onError: (error) => {
+                toast.error(error.message || "Error creating agency");
+              },
+            });
+
+            toast.success("User Created Successfully");
+          }
         },
         onError: (error) => {
-          toast.error(error.message || "Error creating shift");
+          toast.error(error.message || "Error creating user");
         },
       });
     },
@@ -109,7 +166,15 @@ export function AddAgency() {
             </div>
           </div>
 
-          {isCreating && <Loader2 className="animate-spin" />}
+          {(isCreatingAgency || isCreatingUser) && (
+            <div className="flex gap-2 items-center">
+              <Loader2 className="animate-spin" />
+              <p className="text-sm">
+                {isCreatingUser && "Creating Agency Account..."}
+                {isCreatingAgency && !isCreatingUser && "Creating Agency..."}
+              </p>
+            </div>
+          )}
 
           <DialogFooter>
             <DialogClose asChild>

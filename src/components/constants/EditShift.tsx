@@ -2,7 +2,7 @@
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,10 +27,7 @@ import { toast } from "sonner"; // Optional, for notifications
 import { Edit, Loader2 } from "lucide-react";
 import moment from "moment";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import {
-  useGetSingleShiftBasedOnId,
-  useUpdateMultipleShifts,
-} from "@/api-service/shift-services";
+import { useUpdateMultipleShifts } from "@/api-service/shift-services";
 import { useAtomValue } from "jotai";
 import { currentUserAtom } from "@/jotai/store";
 import { useRouter } from "next/navigation";
@@ -93,7 +90,7 @@ const DEPARTMENTS = [
   "Zones",
 ];
 
-export function EditShift({ shift_id }) {
+export function EditShift({ shift_Details }) {
   const [open, setOpen] = useState<boolean>(false);
   const { data: agencies = [] } = useGetAllAgencies();
   const { mutate: editShift, isPending: isCreating } =
@@ -101,23 +98,28 @@ export function EditShift({ shift_id }) {
   const currentUser = useAtomValue(currentUserAtom);
   const router = useRouter();
 
-  const {
-    data: shiftDetails,
-    // isLoading: allShiftsLoading,
-    error: shiftError,
-  } = useGetSingleShiftBasedOnId(shift_id);
+  // const {
+  //   data: shift_Details,
+  //   // isLoading: allShiftsLoading,
+  //   error: shiftError,
+  // } = useGetSingleShiftBasedOnId(shift_id);
 
-  if (shiftError) toast.error("Error fetching shifts");
+  // if (shiftError) toast.error("Error fetching shifts");
 
   const formik = useFormik({
     initialValues: {
-      zone: shiftDetails?.zone,
-      department: shiftDetails?.department,
-      shift_type: [] as { id: string; staff_attended: number }[],
-      shift_date: moment().format("dd-mm-yyyy"),
-      function: shiftDetails?.function,
-      agency_id: shiftDetails?.agency_id,
-      agency_name: shiftDetails?.agency_name,
+      zone: shift_Details?.zone,
+      department: shift_Details?.department,
+      shift_type: [
+        {
+          id: shift_Details?.shift_type,
+          staff_attended: shift_Details?.staff_attended,
+        },
+      ],
+      shift_date: moment(shift_Details.shift_date).format("YYYY-MM-DD"),
+      function: shift_Details?.function,
+      agency_id: shift_Details?.agency_id,
+      agency_name: shift_Details?.agency_name,
       updated_by: currentUser && currentUser.id,
     },
     validationSchema: Yup.object({
@@ -148,13 +150,12 @@ export function EditShift({ shift_id }) {
           agency_id: values.agency_id,
           agency_name: values.agency_name,
           updated_by: values.updated_by,
-          shift_id,
+          shift_id: shift_Details.id,
         },
         {
           onSuccess: () => {
             toast.success("Shifts Created Successfully");
             setOpen(false);
-            router.push("/active-requests");
           },
           onError: (error) => {
             toast.error(getErrorMessage(error) || "Error creating shifts");
@@ -163,6 +164,15 @@ export function EditShift({ shift_id }) {
       );
     },
   });
+
+  useEffect(() => {
+    formik.setFieldValue(
+      "shift_date",
+      moment(shift_Details.shift_date).format("YYYY-MM-DD")
+    );
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shift_Details]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

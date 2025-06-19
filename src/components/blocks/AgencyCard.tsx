@@ -1,5 +1,7 @@
 "use client";
-import { IconCash } from "@tabler/icons-react";
+import {
+  IconCash,
+} from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -12,6 +14,7 @@ import {
 import { Agency } from "@/supabase/schema/agencySchema";
 import { Wallet } from "lucide-react";
 import { useGetPendingPayment } from "@/api-service/shift-services";
+import AgencyCredentials from "./AgencyCredentials";
 
 export function AgencyCard({
   agency,
@@ -39,13 +42,17 @@ export function AgencyCard({
           </Badge>
         </CardAction>
       </CardHeader>
-      <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">
-          Payment Pending <Wallet className="size-4 mt-1" />
+      <CardFooter className="flex justify-between items-center w-full">
+        <div className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Payment Pending <Wallet className="size-4 mt-1" />
+          </div>
+          <div className="text-2xl font-mono font-bold">
+            ₹{isLoading ? "calculating..." : payment ?? 0}
+          </div>
         </div>
-        <div className="text-2xl font-mono font-bold">
-          ₹{isLoading ? "calculating..." : payment ?? 0}
-        </div>
+
+        <AgencyCredentials agency={agency} />
       </CardFooter>
     </Card>
   );

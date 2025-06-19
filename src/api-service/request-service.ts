@@ -24,6 +24,9 @@ export const useGetAllActiveRequests = () => {
     return useQuery<Request[], Error>({
         queryKey: ['requests'],
         queryFn: async () => (await requestService.getAllActiveRequests()) ?? [],
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -31,6 +34,9 @@ export const useGetAllActiveRequestsByAgency = (agency_id: string) => {
     return useQuery<Request[], Error>({
         queryKey: ['requests_by_agency'],
         queryFn: async () => (await requestService.getAllActiveRequestsByAgency(agency_id)) ?? [],
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -38,6 +44,9 @@ export const useGetAllApprovedRequests = () => {
     return useQuery<Request[], Error>({
         queryKey: ['requests_approved'],
         queryFn: async () => (await requestService.getAllApprovedRequests()) ?? [],
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -45,6 +54,9 @@ export const useGetAllRejectedRequests = () => {
     return useQuery<Request[], Error>({
         queryKey: ['requests_rejected'],
         queryFn: async () => (await requestService.getAllRejectedRequests()) ?? [],
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -53,6 +65,9 @@ export const useGetRequestBasedOnUser = (user_id: string | number) => {
         queryKey: ['requests_by_user', user_id],
         queryFn: async () => (await requestService.getRequestsBasedOnUser(user_id)) ?? [],
         enabled: !!user_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -61,6 +76,9 @@ export const useGetRejectedRequestBasedOnUser = (user_id: string | number) => {
         queryKey: ['requests_by_rejected_user', user_id],
         queryFn: async () => (await requestService.getRejectedRequestsBasedOnUser(user_id)) ?? [],
         enabled: !!user_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -69,6 +87,9 @@ export const useGetApprovedRequestBasedOnUser = (user_id: string | number) => {
         queryKey: ['requests_by_approved_user', user_id],
         queryFn: async () => (await requestService.getApprovedRequestsBasedOnUser(user_id)) ?? [],
         enabled: !!user_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -77,6 +98,9 @@ export const useGetRejectedRequestBasedOnAgency = (user_id: string | number) => 
         queryKey: ['requests_by_rejected_agency', user_id],
         queryFn: async () => (await requestService.getRejectedRequestsBasedOnAgency(user_id)) ?? [],
         enabled: !!user_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -85,6 +109,9 @@ export const useGetApprovedRequestBasedOnAgency = (user_id: string | number) => 
         queryKey: ['requests_by_approved_agency', user_id],
         queryFn: async () => (await requestService.getApprovedRequestsBasedOnAgency(user_id)) ?? [],
         enabled: !!user_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 

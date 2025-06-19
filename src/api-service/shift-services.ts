@@ -35,14 +35,20 @@ export const useGetAllShifts = () => {
     return useQuery<Shift[], Error>({
         queryKey: ['shifts'],
         queryFn: async () => (await shiftService.getAllShifts()) ?? [],
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
 export const useGetShiftByAgency = (agencyId: string) => {
     return useQuery<Shift[], Error>({
-        queryKey: ['shifts', agencyId],
+        queryKey: ['shifts_by_agency', agencyId],
         queryFn: async () => (await shiftService.getShiftBasedOnAgency(agencyId)) ?? [],
         enabled: !!agencyId, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -51,6 +57,9 @@ export const useGetShiftBasedOnUser = (user_id: string) => {
         queryKey: ['shifts_by_user', user_id],
         queryFn: async () => (await shiftService.getShiftBasedOnUser(user_id)) ?? [],
         enabled: !!user_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -59,6 +68,9 @@ export const useGetSingleShiftBasedOnId = (shift_id: string) => {
         queryKey: ['shift_by_Id', shift_id],
         queryFn: async () => (await shiftService.getSingleShiftBasedOnId(shift_id)) ?? null,
         enabled: !!shift_id, // only run if agencyId is truthy
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -67,6 +79,9 @@ export const useGetPendingPayment = (agencyId: string | number) => {
         queryKey: ['pendingPayment', agencyId],
         queryFn: async () => (await shiftService.getTotalPaymentPendingBasedOnAgencyAndShifts(agencyId)) ?? null,
         enabled: !!agencyId,
+        refetchOnWindowFocus: false,  // Don't refetch on tab/window switch
+        refetchOnMount: false,        // Don't refetch when component mounts again
+        staleTime: 1000 * 60 * 5,
     });
 };
 
@@ -106,6 +121,8 @@ export const useCreateMultipleShifts = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["shifts_by_user"] });
+            queryClient.invalidateQueries({ queryKey: ["shifts_by_agency"] });
+            queryClient.invalidateQueries({ queryKey: ["shifts"] });
             queryClient.refetchQueries({
                 predicate: (query) => query.queryKey[0] === "pendingPayment",
             });
@@ -150,7 +167,9 @@ export const useUpdateMultipleShifts = () => {
             return responses;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["shifts_by_id"] });
+            queryClient.invalidateQueries({ queryKey: ["shifts_by_user"] });
+            queryClient.invalidateQueries({ queryKey: ["shifts_by_agency"] });
+            queryClient.invalidateQueries({ queryKey: ["shifts"] });
             queryClient.refetchQueries({
                 predicate: (query) => query.queryKey[0] === "pendingPayment",
             });

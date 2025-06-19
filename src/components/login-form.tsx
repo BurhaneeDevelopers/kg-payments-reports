@@ -96,7 +96,7 @@ export function LoginForm({
                 ) : null}
               </div>
               <div className="grid gap-3">
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
                     href="#"
@@ -104,7 +104,7 @@ export function LoginForm({
                   >
                     Forgot your password?
                   </a>
-                </div>
+                </div> */}
                 <div className="relative">
                   <Input
                     id="password"
@@ -120,9 +120,9 @@ export function LoginForm({
                     tabIndex={-1}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
                       <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4" />
                     )}
                   </Button>
                 </div>

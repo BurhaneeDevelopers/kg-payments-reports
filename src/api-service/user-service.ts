@@ -3,12 +3,13 @@ import { usersService } from "@/supabase/services/userService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export type NewUserPayload = {
-    id: string
-    username: string;
-    password: string;
-    agency_code: string;
     name: string;
+    email: string;
+    password: string;
     role: string;
+    username: string;
+    department_code: string;
+    agency_code: string;
 };
 
 export const useAuth = () => {
@@ -21,27 +22,29 @@ export const useAuth = () => {
     });
 };
 
-export const useCreateMultipleRequirements = () => {
+export const useCreateNewUser = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (payload: NewUserPayload) => {
             const {
-                id,
-                username,
-                password,
-                agency_code,
                 name,
+                email,
+                password,
                 role,
+                username,
+                department_code,
+                agency_code,
             } = payload;
 
             const responses = await usersService.createUser({
-                id,
-                username,
-                password,
-                agency_code,
                 name,
+                email,
+                password,
                 role,
+                username,
+                department_code,
+                agency_code,
             })
 
             return responses;

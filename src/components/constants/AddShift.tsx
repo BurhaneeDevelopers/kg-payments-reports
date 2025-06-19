@@ -142,7 +142,6 @@ export function AddShift() {
           onSuccess: () => {
             toast.success("Shifts Created Successfully");
             setOpen(false);
-            router.push("/active-requests")
           },
           onError: (error) => {
             toast.error(getErrorMessage(error) || "Error creating shifts");

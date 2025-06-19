@@ -1,9 +1,9 @@
-type role = "admin" | "department" | "agency" | "staff"
+// type role = "admin" | "department" | "agency" | "staff"
 
 export interface User {
     id: string; // uuid
     created_at: string; // uuid
-    role: role;
+    role: string;
     name: string;
     email: string;
     username?: string;

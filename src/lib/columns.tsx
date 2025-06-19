@@ -116,7 +116,7 @@ const columns: ColumnDef<Shift>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="w-fit">
-        <EditShift shift_id={row.original.id} />
+        <EditShift shift_Details={row.original} />
       </div>
     ),
   },
