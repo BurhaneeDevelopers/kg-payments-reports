@@ -1,5 +1,5 @@
 import { AuthError, Session } from "@supabase/supabase-js";
-import { supabase, supabaseAdmin } from "../client";
+import { supabase } from "../client";
 import { User } from "../schema/userSchema";
 import { NewUserPayload } from '../../api-service/user-service';
 
@@ -37,41 +37,18 @@ class UsersService {
 
     // ✅ Create a new user
     async createUser(userData: NewUserPayload): Promise<User | null> {
-        const { email, password, name, department_code, agency_code, role, username } = userData;
+        const res = await fetch('/api/create-user', {
+            method: 'POST',
+            body: JSON.stringify(userData),
+        })
 
-        const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
-            email,
-            password,
-        });
+        const data = await res.json()
 
-        if (signUpError) throw signUpError;
-
-        // Optionally insert additional profile data
-        const { user } = signUpData;
-
-        if (user) {
-            const { data: user_data, error: insertError } = await supabase
-                .from(this.table)
-                .insert({
-                    id: user.id,
-                    name,
-                    email: email,
-                    password: password,
-                    role: role,
-                    username: username,
-                    department_code: department_code || null,
-                    agency_code: agency_code || null,
-                })
-                .select("*")
-                .single()
-
-            if (insertError) throw insertError;
-
-            if (user_data) {
-                return user_data
-            }
+        if (!res.ok) {
+            throw new Error(data.error || 'Failed to create user')
         }
 
+        return data
     }
 
     // ✅ Login user

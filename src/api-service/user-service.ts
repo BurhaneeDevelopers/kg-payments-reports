@@ -23,34 +23,14 @@ export const useAuth = () => {
 };
 
 export const useCreateNewUser = () => {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: async (payload: NewUserPayload) => {
-            const {
-                name,
-                email,
-                password,
-                role,
-                username,
-                department_code,
-                agency_code,
-            } = payload;
-
-            const responses = await usersService.createUser({
-                name,
-                email,
-                password,
-                role,
-                username,
-                department_code,
-                agency_code,
-            })
-
-            return responses;
+            return await usersService.createUser(payload)
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: ["users"] })
         },
-    });
-};
+    })
+}
